@@ -1,0 +1,29 @@
+name: X-Bot Auto Tweet
+on:
+  schedule:
+    - cron: "0 * * * *"  # 毎時0分に実行（好きな間隔に変更）
+  workflow_dispatch:  # 手動実行も可能にする
+
+jobs:
+  tweet:
+    runs-on: ubuntu-latest
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v3
+
+      - name: Pythonをセットアップ
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: 依存関係をインストール
+        run: pip install -r requirements.txt
+
+      - name: Botを実行
+        env:
+          X_CONSUMER_KEY: ${{ secrets.X_CONSUMER_KEY }}
+          X_CONSUMER_SECRET: ${{ secrets.X_CONSUMER_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python bot.py
