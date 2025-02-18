@@ -1,22 +1,17 @@
-import random
-import tweepy  # X API用ライブラリ
-import anthropic  # Claude API用ライブラリ
-from dotenv import load_dotenv
 import os
-
-# 環境変数をロード
-load_dotenv()
-
-# X (Twitter) API 認証
-client = tweepy.Client(
-    consumer_key=os.getenv("X_CONSUMER_KEY"),
-    consumer_secret=os.getenv("X_CONSUMER_SECRET"),
-    access_token=os.getenv("X_ACCESS_TOKEN"),
-    access_token_secret=os.getenv("X_ACCESS_TOKEN_SECRET")
-)
+import tweepy
+import anthropic  # Claude API用ライブラリ
 
 # Claude API 認証
 anthropic_client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+
+# Twitter API の認証
+client = tweepy.Client(
+    consumer_key=os.getenv("TWITTER_API_KEY"),
+    consumer_secret=os.getenv("TWITTER_API_SECRET"),
+    access_token=os.getenv("TWITTER_ACCESS_TOKEN"),
+    access_token_secret=os.getenv("TWITTER_ACCESS_SECRET")
+)
 
 # Claudeでツイートを生成
 def generate_tweet():
