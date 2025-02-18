@@ -1,41 +1,34 @@
-import os
-import tweepy
-import openai
 import random
-import time
+import tweepy  # X API用ライブラリ
+import anthropic  # Claude API用ライブラリ
+from dotenv import load_dotenv
+import os
 
-# 🌟 環境変数からAPIキーを取得（GitHub Secretsで管理）
-TWITTER_API_KEY = os.getenv("TWITTER_API_KEY")
-TWITTER_API_SECRET = os.getenv("TWITTER_API_SECRET")
-TWITTER_ACCESS_TOKEN = os.getenv("TWITTER_ACCESS_TOKEN")
-TWITTER_ACCESS_SECRET = os.getenv("TWITTER_ACCESS_SECRET")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+# 環境変数をロード
+load_dotenv()
 
-# 🌟 認証設定（X API）
-auth = tweepy.OAuthHandler(TWITTER_API_KEY, TWITTER_API_SECRET)
-auth.set_access_token(TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_SECRET)
-api = tweepy.API(auth)
+# X (Twitter) API 認証
+client = tweepy.Client(
+    consumer_key=os.getenv("X_CONSUMER_KEY"),
+    consumer_secret=os.getenv("X_CONSUMER_SECRET"),
+    access_token=os.getenv("X_ACCESS_TOKEN"),
+    access_token_secret=os.getenv("X_ACCESS_TOKEN_SECRET")
+)
 
-# 🌟 OpenAI クライアント設定
-client = openai.OpenAI(api_key=OPENAI_API_KEY)
+# Claude API 認証
+anthropic_client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
-# 🌟 GPTにツイートを作らせる関数（新バージョン対応）
+# Claudeでツイートを生成
 def generate_tweet():
-    prompt = """
-    あなたはかわいくて応援される宇宙ロボットです。
-    ユーザーに元気を与える、シュールだけどちょっとかわいいツイートを作成してください。
-    例:
-    ・「今日も地球でがんばるよ！宇宙にはまだ行けないけど、夢は大きく✨」
-    ・「応援されるとエネルギーがたまるんだ！みんな、よろしくね🚀」
-    ・「宇宙の音って無音らしいよ。でも、ボクの心には君の声が響いてる…📡」
-    """
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": "system", "content": prompt}]
+    response = anthropic_client.messages.create(
+        model="claude-3",  # Claudeの最新モデル（Claude 3に適宜変更）
+        max_tokens=100,
+        messages=[{"role": "user", "content": "ポンコツな宇宙ロボットがつぶやくような面白い一言を作って"}]
     )
-    return response.choices[0].message.content.strip()
+    return response.content[0].text  # Claudeのレスポンスからテキストを取得
 
-# 🌟 9:00と20:00のツイート
+# ツイートを投稿
 tweet_text = generate_tweet()
-api.update_status(tweet_text)
-print(f"ツイートしました: {tweet_text}")
+client.create_tweet(text=tweet_text)
+
+print("ツイートしました:", tweet_text)
